@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import "./App.css";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -59,7 +60,10 @@ function View() {
                   <td>{student.username}</td>
                   <td>{student.email}</td>
                   <td>
-                    <Link to={"/Edit"} className="btn btn-primary btn-sm me-2">
+                    <Link
+                      to={"/Edit/" + student.id}
+                      className="btn btn-primary btn-sm me-2"
+                    >
                       edit
                     </Link>
                     <button

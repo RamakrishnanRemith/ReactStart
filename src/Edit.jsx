@@ -1,98 +1,97 @@
-import React, { useState } from "react";
 import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
-import Validation from "./Loginvalitation";
-import { Link, useNavigate } from "react-router-dom";
-import "./App.css";
-function Register() {
-  const [values, setValues] = useState({
+function Edit() {
+  const [data, setData] = useState({
     username: "",
     email: "",
     password: "",
   });
-  const [errors, setErrors] = useState({});
-  const handleInput = (event) => {
-    setValues({ ...values, [event.target.name]: [event.target.value] });
-  };
-
   const navigate = useNavigate();
+
+  const { id } = useParams();
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8081/getremith/" + id)
+      .then((res) => {
+        setData({
+          ...data,
+          username: res.data.Result[0].username,
+          email: res.data.Result[0].email,
+          password: res.data.Result[0].password,
+        });
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
-    const validationErrors = Validation(values);
-    setErrors(validationErrors);
-
-    // Check if there are any errors before submitting the form
-    if (Object.keys(validationErrors).length === 0) {
-      console.log("Form Values:", values);
-      axios
-        .post("http://localhost:8081/signup", values)
-        .then((res) => {
+    axios
+      .put("http://localhost:8081/Update/" + id, data)
+      .then((res) => {
+        if (res.data.Status === "Success") {
           navigate("/Login");
-        })
-        .catch((error) => {
-          // Handle network errors
-          if (error.response) {
-            // Server responded with a status code outside the 2xx range
-            console.log("Server Error:", error.response.data);
-          } else if (error.request) {
-            // The request was made, but no response was received
-            console.log("No response from server");
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log("Error:", error.message);
-          }
-        });
-    }
+        }
+      })
+      .catch((err) => console.log(err));
   };
-
   return (
-    <div className="App">
-      <div className="auth-form-container">
-        <h2>Register</h2>
-        <form className="login-form" onSubmit={handleSubmit}>
-          <label htmlFor="username">
-            <strong>UserName</strong>
+    <div className="d-flex flex-column align-items-center pt-4">
+      <h2>Update Student</h2>
+      <form class="row g-3 w-50" onSubmit={handleSubmit}>
+        <div class="col-12">
+          <label for="inputName" class="form-label">
+            Name
           </label>
           <input
-            type="username"
-            placeholder="Enter username"
-            name="username"
-            onChange={handleInput}
+            type="text"
+            class="form-control"
+            id="inputName"
+            placeholder="Enter Name"
+            autoComplete="off"
+            onChange={(e) => setData({ ...data, username: e.target.value })}
+            value={data.username}
           />
-          {errors.username && (
-            <span className="text-danger">{errors.username}</span>
-          )}
-          <label htmlFor="email">
-            <strong>Email</strong>
+        </div>
+        <div class="col-12">
+          <label for="inputEmail4" class="form-label">
+            Email
           </label>
           <input
             type="email"
+            class="form-control"
+            id="inputEmail4"
             placeholder="Enter Email"
-            name="email"
-            onChange={handleInput}
+            autoComplete="off"
+            onChange={(e) => setData({ ...data, email: e.target.value })}
+            value={data.email}
           />
-          {errors.email && <span className="text-danger">{errors.email}</span>}
-
-          <label htmlFor="password">
-            <strong>Password</strong>
+        </div>
+        <div class="col-12">
+          <label for="inputEmail4" class="form-label">
+            Password
           </label>
           <input
             type="password"
-            placeholder="Enter Password"
-            name="password"
-            onChange={handleInput}
+            class="form-control"
+            id="inputEmail4"
+            placeholder="Enter password"
+            autoComplete="off"
+            onChange={(e) => setData({ ...data, password: e.target.value })}
+            value={data.password}
           />
-          {errors.password && <span>{errors.password}</span>}
-          <br></br>
-          <button type="submit"> Sign Up</button>
-        </form>
-        <button className="link-btn">
-          <Link to="/Login">Already have an account? Login here.</Link>
-        </button>
-      </div>
+        </div>
+
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">
+            Update
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
-export default Register;
+
+export default Edit;

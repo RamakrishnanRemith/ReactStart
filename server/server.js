@@ -33,13 +33,6 @@ app.post("/signup", (req, res) => {
     req.body.email[0], // Extract the value from the array
     req.body.password[0], // Extract the value from the array
   ];
-  con.query(sql, [values], (err, data) => {
-    if (err) {
-      console.error("Database Error:", err);
-      return res.status(500).json("Error occurred while inserting data.");
-    }
-    return res.json(data);
-  });
 });
 
 app.post("/next", (req, res) => {
@@ -62,6 +55,22 @@ app.post("/next", (req, res) => {
 app.get("/getStudent", (req, res) => {
   const sql = "SELECT * FROM usersignup";
   con.query(sql, (err, result) => {
+    if (err) return res.json({ Error: "Get employee error in sql" });
+    return res.json({ Status: "Success", Result: result });
+  });
+});
+app.get("/getremith/:id", (req, res) => {
+  const id = req.params.id;
+  const sql = "SELECT * FROM usersignup where id = ?";
+  con.query(sql, [id], (err, result) => {
+    if (err) return res.json({ Error: "Get employee error in sql" });
+    return res.json({ Status: "Success", Result: result });
+  });
+});
+app.get("/Update/:id", (req, res) => {
+  const id = req.params.id;
+  const sql = "Update * FROM usersignup";
+  con.query(sql, [id], (err, result) => {
     if (err) return res.json({ Error: "Get employee error in sql" });
     return res.json({ Status: "Success", Result: result });
   });
