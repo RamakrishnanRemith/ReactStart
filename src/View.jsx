@@ -7,6 +7,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 function View() {
   const [data, setData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   useEffect(() => {
     axios
       .get("http://localhost:8081/getStudent")
@@ -33,6 +34,11 @@ function View() {
       })
       .catch((err) => console.log(err));
   };
+  // Filter data based on the search term
+  const filteredData = data.filter((student) => {
+    return student.username.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
   return (
     <div className="px-5 py-3">
       <div className="d-flex justify-content-center mt-2">
@@ -42,46 +48,55 @@ function View() {
         Add Student
       </Link>
       <div className="mt-3">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((student, index) => {
-              return (
-                <tr key={index}>
-                  <td>{student.id}</td>
-                  <td>{student.username}</td>
-                  <td>{student.email}</td>
-                  <td>
-                    <Link
-                      to={"/Edit/" + student.id}
-                      className="btn btn-primary btn-sm me-2"
-                    >
-                      edit
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(student.id)}
-                      className="btn btn-sm btn-danger"
-                    >
+        <input
+          type="text"
+          placeholder="Search by name"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
+        <div className="mt-3">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredData.map((student, index) => {
+                return (
+                  <tr key={index}>
+                    <td>{student.id}</td>
+                    <td>{student.username}</td>
+                    <td>{student.email}</td>
+                    <td>
                       <Link
-                        to={"/View"}
+                        to={"/Edit/" + student.id}
                         className="btn btn-primary btn-sm me-2"
                       >
-                        delete
+                        edit
                       </Link>
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                      <button
+                        onClick={() => handleDelete(student.id)}
+                        className="btn btn-sm btn-danger"
+                      >
+                        <Link
+                          to={"/View"}
+                          className="btn btn-primary btn-sm me-2"
+                        >
+                          delete
+                        </Link>
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

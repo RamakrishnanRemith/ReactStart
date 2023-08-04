@@ -5,6 +5,7 @@ import Login from "./Login";
 import Register from "./Register";
 import View from "./View";
 import Edit from "./Edit";
+import ContactForm from "./Email";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // function App() {
@@ -22,6 +23,7 @@ function App() {
         <Route path="/Register" element={<Register />}></Route>
         <Route path="/View" element={<View />}></Route>
         <Route path="/Edit/:id" element={<Edit />}></Route>
+        <Route path="/Email" element={<ContactForm />}></Route>
       </Routes>
     </BrowserRouter>
   );
