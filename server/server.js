@@ -3,12 +3,13 @@ import mysql from "mysql";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
+import bcrypt from "bcrypt";
 
 const app = express();
 app.use(
   cors({
     origin: ["http://localhost:5173"],
-    methods: ["POST", "GET", "PUT"],
+    methods: ["POST", "GET", "PUT", "DELETE"],
     credentials: true,
   })
 );
@@ -26,13 +27,26 @@ const con = mysql.createConnection({
 app.post("/signup", (req, res) => {
   console.log("Received data from frontend:", req.body);
 
-  const sql = "INSERT INTO usersignup (username,email, password) VALUES (?)";
+  const sql =
+    "INSERT INTO usersignup (username, email, password) VALUES (?, ?, ?)";
   const values = [
-    // Extract the value from the array
     req.body.username[0],
-    req.body.email[0], // Extract the value from the array
-    req.body.password[0], // Extract the value from the array
+    req.body.email[0],
+    req.body.password[0],
   ];
+
+  con.query(sql, values, (err, result) => {
+    if (err) {
+      console.error("Error inserting data:", err);
+      return res.json({
+        Status: "Error",
+        Error: "Error inserting data into the database",
+      });
+    }
+
+    console.log("Data inserted successfully!");
+    return res.json({ Status: "Success" });
+  });
 });
 
 app.post("/next", (req, res) => {
@@ -67,11 +81,48 @@ app.get("/getremith/:id", (req, res) => {
     return res.json({ Status: "Success", Result: result });
   });
 });
-app.get("/Update/:id", (req, res) => {
+app.put("/update/:id", (req, res) => {
   const id = req.params.id;
-  const sql = "Update * FROM usersignup";
+  const { username, email, password } = req.body;
+
+  // Hash the new password before updating it in the database
+  bcrypt.hash(password, 10, (err, hashedPassword) => {
+    if (err)
+      return res.json({ Status: "Error", Error: "Error in hashing password" });
+
+    const sql =
+      "UPDATE usersignup SET username = ?, email = ?, password = ? WHERE id = ?";
+    const values = [username, email, hashedPassword, id];
+
+    con.query(sql, values, (err, result) => {
+      if (err) {
+        console.error("Error updating data:", err);
+        return res.json({
+          Status: "Error",
+          Error: "Error updating data in the database",
+        });
+      }
+
+      console.log("Data updated successfully!");
+      return res.json({ Status: "Success" });
+    });
+  });
+});
+app.delete("/delete/:id", (req, res) => {
+  const id = req.params.id;
+
+  const sql = "DELETE FROM usersignup WHERE id = ?";
+
   con.query(sql, [id], (err, result) => {
-    if (err) return res.json({ Error: "Get employee error in sql" });
+    if (err) {
+      console.error("Error deleting data:", err);
+      return res.json({
+        Status: "Error",
+        Error: "Error deleting data from the database",
+      });
+    }
+
+    console.log("Data deleted successfully!");
     return res.json({ Status: "Success", Result: result });
   });
 });

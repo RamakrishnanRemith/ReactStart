@@ -7,11 +7,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 function View() {
   const [data, setData] = useState([]);
-  const navigate = useNavigate();
   useEffect(() => {
     axios
       .get("http://localhost:8081/getStudent")
       .then((res) => {
+        console.log(res.data); // Check the response data here
         if (res.data.Status === "Success") {
           setData(res.data.Result);
         } else {
@@ -20,20 +20,19 @@ function View() {
       })
       .catch((err) => console.log(err));
   }, []);
-
   const handleDelete = (id) => {
     axios
       .delete("http://localhost:8081/delete/" + id)
       .then((res) => {
+        console.log(res.data); // Check the response data here
         if (res.data.Status === "Success") {
           setData(res.data.Result);
         } else {
-          alert("Error");
+          alert("Error deleting user.");
         }
       })
       .catch((err) => console.log(err));
   };
-
   return (
     <div className="px-5 py-3">
       <div className="d-flex justify-content-center mt-2">
@@ -67,10 +66,15 @@ function View() {
                       edit
                     </Link>
                     <button
-                      onClick={(e) => handleDelete(student.id)}
+                      onClick={() => handleDelete(student.id)}
                       className="btn btn-sm btn-danger"
                     >
-                      delete
+                      <Link
+                        to={"/View"}
+                        className="btn btn-primary btn-sm me-2"
+                      >
+                        delete
+                      </Link>
                     </button>
                   </td>
                 </tr>
